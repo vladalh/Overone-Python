@@ -1,57 +1,47 @@
 import math
 
+def calculating_fractions(x1, x2, y1, y2, sign):
+    devisor = math.gcd(x2, y2)
+    if sign == '+':
+        if y1 == y2:
+            num = x1 + x2
+            denom = y1
+        else:
+            num = (x1 * y2) + (x2 * y1)
+            denom = y1 * y2
+        result = f"{int(num // devisor)} / {int(denom // devisor)}"
+
+    elif sign == '-':
+        if y1 == y2:
+            num = x1 - x2
+            denom = y1
+        else:
+            num = (x1 * y2) - (x2 * y1)
+            denom = y1 * y2
+        result = f"{int(num // devisor)} / {int(denom // devisor)}"
+
+    elif sign == '*':
+        num = x1 * x2
+        denom = y1 * y2
+        result = f"{int(num // devisor)} / {int(denom // devisor)}"
+
+    elif sign == '/':
+        num = x1 * y2
+        denom = y1 * x2
+        result = f"{int(num // devisor)} / {int(denom // devisor)}"
+
+    if num < denom:
+        return result
+    else:
+        return  f"{int(num // denom)} {int((num % denom) // devisor)}/{int((denom) // devisor)}"
+
+
 numerator1 = int(input("Enter the numerator1 :"))
 denominator1 = int(input("Enter the denominator :"))
 operator = input("Enter operator +, -, *, / :")
 numerator2 = int(input("Enter the numerator2 :"))
 denominator2 = int(input("Enter the denominator :"))
 
-result = ""
-
-if operator == "+":
-    numerator3 = (numerator1 * denominator2) + (numerator2 * denominator1)
-    denominator3 = denominator1 * denominator2
-    divisor = math.gcd(numerator3, denominator3)
-
-    if numerator3 > denominator3:
-        whole = numerator3 // denominator3
-        result = f"{int(whole)} {int((numerator3 % denominator3) // divisor) }/{int(denominator3 // divisor)}"
-    else:
-        result = f"{int(numerator3 // divisor)}/{int(denominator3 // divisor)}"
-
-elif operator == "-":
-    numerator3 = (numerator1 * denominator2) - (numerator2 * denominator1)
-    denominator3 = denominator1 * denominator2
-    divisor = math.gcd(numerator3, denominator3)
-
-    if numerator3 > denominator3:
-        whole = numerator3 // denominator3
-        result = f"{int(whole)} {int((numerator3 % denominator3) // divisor) }/{int(denominator3 // divisor)}"
-    else:
-        result = f"{int(numerator3 // divisor)}/{int(denominator3 // divisor)}"
-
-elif operator == "*":
-    numerator3 = numerator1 * numerator2
-    denominator3 = denominator1 * denominator2
-    divisor = math.gcd(numerator3, denominator3)
-
-    if numerator3 > denominator3:
-        whole = numerator3 // denominator3
-        result = f"{int(whole)} {int((numerator3 % denominator3) // divisor) }/{int(denominator3 // divisor)}"
-    else:
-        result = f"{int(numerator3 // divisor)}/{int(denominator3 // divisor)}"
-
-elif operator == "/":
-    numerator3 = numerator1 * denominator2
-    denominator3 = denominator1 * numerator2
-    divisor = math.gcd(numerator3, denominator3)
-
-    if numerator3 > denominator3:
-        whole = numerator3 // denominator3
-        result = f"{int(whole)} {int((numerator3 % denominator3) // divisor) }/{int(denominator3 // divisor)}"
-    else:
-        result = f"{int(numerator3 // divisor)}/{int(denominator3 // divisor)}"
-
-print(result)
+print(calculating_fractions(numerator1, numerator2, denominator1, denominator2, operator))
 
 # vladalh@mail.ru
