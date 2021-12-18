@@ -1,4 +1,7 @@
+import json
 import random
+import csv
+
 
 name_cinema_list_1 = ["I", "all", "we", "always", "yesterday", "sailing", "go", "house",
                       "stadium", "clouds", "window", "locked", "a door", "close", "television"]
@@ -63,39 +66,147 @@ while a <= 20:
         "country": tuple(random.sample(country_of_origin, country_count))}
     a += 1
 
-    print(cinema_dict)
     cinema_full_dict[movie_number] = cinema_dict
-print(cinema_full_dict)
+
+file_format_list = ["txt", "csv", "json"]
+
+file_format = input("Enter the file format for saving data: txt, csv or json: ")
+
+dict_save_path = input("Enter the path to save the movie dictionary: (optional step, you can click 'enter') ")
+
+if file_format not in file_format_list:
+    print("You entered the wrong file format")
+    exit(0)
+
+else:
+    try:
+        with open(f"{dict_save_path}movies.{file_format}", "w", encoding="utf-8") as file:
+            if file_format == "txt":
+                for key, value in cinema_full_dict.items():
+                    txt_file = file.write(f"{key}: {value}\n")
+
+            elif file_format == "csv":
+                columns = ["movie number", "movie title", "mark", "year of issue", "genre", "country"]
+                csv_file = csv.DictWriter(file, fieldnames=columns)
+                csv_file.writeheader()
+                csv_file.writerows(cinema_full_dict.values())
+
+            elif file_format == "json":
+                json_file = json.dump(cinema_full_dict, file, indent=4)
+
+    except IOError:
+        print("Unable to file or read data")
+
+criterion_list = []
 
 person = input("Enter year, rating, country or genre:")
-msg = ""
 
-for k in cinema_full_dict:
-    if person.isdigit():
-        if int(person) <= cinema_full_dict[k]["year of issue"]:
-            cinema_list.append(cinema_full_dict[k])
-            msg = f"list of films for a given request :{cinema_list}"
+if 0 > int(person) > 100 or 1895 > int(person) > 2021 or person not in genres_cinema or \
+        person not in country_of_origin:
+    print("Invalid search data")
+    exit(0)
+else:
+    result_path = input("Enter the path to save the list by selection criterion: (optional step, you can click 'enter')")
 
-        elif float(person) < float(cinema_full_dict[k]["mark"]):
-            cinema_list.append(cinema_full_dict[k])
-            msg = f"list of films for a given request :{cinema_list}"
+result_mmovies = ""
 
-        else:
-            msg = f"There are no films with such parameters"
+try:
+    with open(f"{dict_save_path}movies.{file_format}", "r", encoding="utf-8") as file:
+        if file_format == "txt":
+            for line in file:
+                file_list = line.split(",")
+                cinema_list.append(file_list)
 
-    elif person.isalpha():
-        for l in cinema_full_dict[k]["genre"]:
-            if person == l:
-                cinema_list.append(cinema_full_dict[k])
-                msg = f"list of films for a given request :{cinema_list}"
+            for cinema in cinema_list:
+                if person.isdigit():
+                    if int(person) > 1895:
+                        cin1 = cinema[3].strip().split(":")
+                        cin2 = cin1[1]
+                        if int(person) <= int(cin2):
+                            criterion_list.append(cinema)
 
-            if person in cinema_full_dict[k]["country"]:
-                cinema_list.append(cinema_full_dict[k])
-                msg = f"list of films for a given request :{cinema_list}"
+                    elif int(person) < 100:
+                        cin3 = cinema[2].strip().split(":")
+                        cin4 = cin3[1]
+                        if int(person) <= float(cin4):
+                            criterion_list.append(cinema)
 
-    else:
-        msg = f"The input format does not meet the requirement. Restart the program and re-enter"
+                elif person.isalpha():
+                    if person in cinema[4]:
+                        criterion_list.append(cinema)
 
-print(msg)
+                    elif person in cinema[5]:
+                        criterion_list.append(cinema)
+
+        elif file_format == "csv":
+            csv_reader = csv.DictReader(file, delimiter=",")
+            for line in csv_reader:
+                if any(line):
+                    cinema_list.append(line)
+
+            for cinema in cinema_list:
+                if person.isdigit():
+                    if int(person) >= 1895 and int(person) <= int(cinema["year of issue"]):
+                        criterion_list.append(cinema)
+
+                    elif int(person) <= 100 and int(person) <= float(cinema["mark"]):
+                        criterion_list.append(cinema)
+
+                elif person.isalpha():
+                    if person in cinema["genre"]:
+                        criterion_list.append(cinema)
+
+                    elif person in cinema["country"]:
+                        criterion_list.append(cinema)
+
+        elif file_format == 'json':
+            json_data = json.load(file)
+
+            for cin in json_data:
+                if person.isdigit():
+                    if int(person) >= 1895 and int(person) <= json_data[cin]["year of issue"]:
+                        criterion_list.append(json_data[cin])
+
+                    elif int(person) <= 100 and int(person) <= float(json_data[cin]["mark"]):
+                        criterion_list.append(json_data[cin])
+
+                elif person.isalpha():
+                    if person in json_data[cin]["genre"]:
+                        criterion_list.append(json_data[cin])
+
+                    elif person in json_data[cin]["country"]:
+                        criterion_list.append(json_data[cin])
+
+except FileNotFoundError:
+    print("Sorry, the file specified does not exist")
+
+except IOError:
+    print("Unable to file or read data")
+
+for res in criterion_list:
+    result = ",".join(res)
+    result_mmovies += result
+try:
+    with open(f"{result_path}result_mmovies.{file_format}", "w", encoding="utf-8") as file:
+        if file_format == "txt":
+            file.write(result_mmovies)
+
+        elif file_format == "csv":
+            columns = ["movie number", "movie title", "mark", "year of issue", "genre", "country"]
+            csv_file = csv.DictWriter(file, fieldnames=columns)
+            csv_file.writeheader()
+            csv_file.writerows(criterion_list)
+
+        elif file_format == "json":
+            json_file = json.dump(criterion_list, file, indent=4)
+
+except FileNotFoundError:
+    print("Sorry, the file specified does not exist")
+
+except IOError:
+    print("Unable to file or read data")
+
+else:
+    print("The program has completed successfully")
 
 # vladalh@mail.ru
